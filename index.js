@@ -41,6 +41,7 @@ const run = async ()=>{
 
       const categoryCollection = client.db("crashguitar").collection("productCategory")
       const usersCollection = client.db("crashguitar").collection("users")
+      const productsCollection = client.db("crashguitar").collection("products")
 
       // load category collection 
       app.get('/category' , async (req,res)=>{
@@ -66,6 +67,17 @@ const run = async ()=>{
          const result = await usersCollection.findOne(query)
          res.send(result)
       })
+
+
+      // post products to db 
+
+      app.post('/products', async(req,res)=>{
+         const product = req.body
+         const result = await productsCollection.insertOne(product)
+         res.send(result)
+      })
+
+
 
    }finally{
 
