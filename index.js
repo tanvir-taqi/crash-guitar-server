@@ -2,6 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const { application, query } = require('express');
 require('dotenv').config()
 const port = process.env.PORT || 5000
 
@@ -9,6 +10,7 @@ const app = express()
 
 
 app.use(cors())
+app.use(express.json())
 
 app.get("/", (req,res)=>{
 res.send("welcome to crash guitar server!")
@@ -38,6 +40,7 @@ const run = async ()=>{
    try{
 
       const categoryCollection = client.db("crashguitar").collection("productCategory")
+      const usersCollection = client.db("crashguitar").collection("users")
 
       // load category collection 
       app.get('/category' , async (req,res)=>{
@@ -46,6 +49,23 @@ const run = async ()=>{
          res.send(result)
       })
 
+
+      // post user to db 
+
+      app.post('/allusers', async (req,res)=>{
+         const user = req.body
+         
+         const result = await usersCollection.insertOne(user)
+         res.send(result)
+      })
+
+      // load single user by query parameters
+      app.get("/users", async (req,res)=>{
+         const userEmail = req.query.email
+         const query = {email: userEmail}
+         const result = await usersCollection.findOne(query)
+         res.send(result)
+      })
 
    }finally{
 
