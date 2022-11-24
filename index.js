@@ -77,6 +77,13 @@ const run = async ()=>{
          res.send(result)
       })
 
+      // load products by id or all products
+      app.get('/products/:id', async(req,res)=>{
+         const productId = req.params.id
+         const query = {categoryid:productId}
+         const result = await productsCollection.find(query).toArray()
+         res.send(result)
+      })
 
 
    }finally{
