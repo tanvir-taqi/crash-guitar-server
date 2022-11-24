@@ -34,6 +34,27 @@ client.connect(err => {
 
 
 
+const run = async ()=>{
+   try{
+
+      const categoryCollection = client.db("crashguitar").collection("productCategory")
+
+      // load category collection 
+      app.get('/category' , async (req,res)=>{
+         const query = {}
+         const result = await categoryCollection.find(query).toArray();
+         res.send(result)
+      })
+
+
+   }finally{
+
+   }
+}
+run().catch(err => console.log(err.message))
+
+
+
 
 
 app.listen(port ,()=>{
