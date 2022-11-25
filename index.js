@@ -42,6 +42,7 @@ const run = async ()=>{
       const categoryCollection = client.db("crashguitar").collection("productCategory")
       const usersCollection = client.db("crashguitar").collection("users")
       const productsCollection = client.db("crashguitar").collection("products")
+      const bookingsCollection = client.db("crashguitar").collection("bookings")
 
       // load category collection 
       app.get('/category' , async (req,res)=>{
@@ -105,6 +106,41 @@ const run = async ()=>{
          res.send(result)
       })
 
+
+      // advertise update 
+      app.put('/myproducts/:id' , async (req, res) => {
+         const productId = req.params.id
+         const filter = {_id:ObjectId(productId)}
+         const options = { upsert: true }
+         const updatedDoc = {
+           $set: {
+             advertise: true
+           }
+         }
+         const result = await productsCollection.updateOne(filter, updatedDoc, options)
+         res.send(result)
+      })
+
+      //update product status 
+      app.put('/products/:id' , async (req, res)=>{
+         const productId = req.params.id
+         const filter = {_id:ObjectId(productId)}
+         const options = { upsert: true }
+         const updatedDoc = {
+           $set: {
+             status: 'Booked'
+           }
+         }
+         const result = await productsCollection.updateOne(filter, updatedDoc, options)
+         res.send(result)
+      })
+
+      // post api for booked product
+      app.post('/bookings' , async (req, res)=>{
+         const booking = req.body
+         const result =  await bookingsCollection.insertOne(booking)
+         res.send(result)
+      })
 
    }finally{
 
