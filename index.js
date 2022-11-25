@@ -85,6 +85,18 @@ const run = async ()=>{
          res.send(result)
       })
 
+      // load products by query email of seller
+
+      app.get('/myproducts', async (req, res) => {
+         const userEmail = req.query.email 
+         console.log(userEmail);
+         const query = {sellerEmail:userEmail}
+         const result = await productsCollection.find(query).toArray()
+         
+         res.send(result)
+
+      })
+
 
    }finally{
 
