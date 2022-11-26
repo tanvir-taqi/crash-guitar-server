@@ -124,11 +124,12 @@ const run = async ()=>{
       //update product status 
       app.put('/products/:id' , async (req, res)=>{
          const productId = req.params.id
+         const status = req.body.status
          const filter = {_id:ObjectId(productId)}
          const options = { upsert: true }
          const updatedDoc = {
            $set: {
-             status: 'Booked'
+             status: status
            }
          }
          const result = await productsCollection.updateOne(filter, updatedDoc, options)
@@ -141,6 +142,22 @@ const run = async ()=>{
          const result =  await bookingsCollection.insertOne(booking)
          res.send(result)
       })
+
+      // get my orders by email query 
+      app.get('/myorders', async (req, res) => {
+         const userEmail = req.query.email
+         
+         const query = {buyersEmail: userEmail}
+         const result = await bookingsCollection.find(query).toArray()
+         res.send(result)
+      })
+
+      app.delete('/myorders/:id', async (req, res) => {
+         const query = {_id: ObjectId(req.params.id)}
+         const result = await bookingsCollection.deleteOne(query)
+         res.send(result)
+      })
+
 
    }finally{
 
