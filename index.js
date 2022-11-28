@@ -333,6 +333,30 @@ const run = async () => {
          res.send(result)
       })
 
+
+      // load all products 
+      app.get("/allproducts", async (req, res) => {
+         const query = {}
+         const result = await productsCollection.find(query).toArray()
+         const remaining = result.filter(rem => rem.status !== "Paid")
+         res.send(remaining)
+      })
+      // load all products sold
+      app.get("/soldproducts", async (req, res) => {
+         const query = {status:'Paid'}
+         const result = await productsCollection.find(query).toArray()
+         res.send(result)
+      })
+
+      //all user load 
+      app.get("/allusers", async (req, res) => {
+         const query = {}
+         const result = await usersCollection.find(query).toArray()
+         res.send(result)
+      })
+
+
+
    } finally {
 
    }
