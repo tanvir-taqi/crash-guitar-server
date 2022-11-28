@@ -161,7 +161,22 @@ const run = async () => {
          const options = { upsert: true }
          const updatedDoc = {
             $set: {
-               status: status
+               status: status,
+            }
+         }
+         const result = await productsCollection.updateOne(filter, updatedDoc, options)
+         res.send(result)
+      })
+
+      // report to admin put request 
+      app.put('/reportproducts/:id', async (req,res) => {
+         const productId = req.params.id
+         const report = req.body.report
+         const filter = { _id: ObjectId(productId) }
+         const options = { upsert: true }
+         const updatedDoc = {
+            $set: {
+               report: report,
             }
          }
          const result = await productsCollection.updateOne(filter, updatedDoc, options)
@@ -302,6 +317,21 @@ const run = async () => {
          });
       });
 
+
+      // load reported items 
+      app.get('/reporteditems', async (req, res) => {
+         const query = {report:true}
+         const result = await productsCollection.find(query).toArray()
+         
+         res.send(result)
+      })
+
+      // delete product 
+      app.delete('/products/:id',async(req,res)=>{
+         const query = {_id:ObjectId(req.params.id)}
+         const result = await productsCollection.deleteOne(query)
+         res.send(result)
+      })
 
    } finally {
 
