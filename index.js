@@ -5,6 +5,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const { application, query } = require('express');
 require('dotenv').config()
 const jwt = require('jsonwebtoken')
+const stripe = require('stripe')(process.env.STRIPE_SECRET)
 const port = process.env.PORT || 5000
 
 const app = express()
@@ -82,11 +83,11 @@ const run = async () => {
       app.post('/allusers', async (req, res) => {
          const user = req.body
          const userEmail = user.email
-         const query = {email : userEmail}
+         const query = { email: userEmail }
 
          const oldUsers = await usersCollection.findOne(query)
-         if(oldUsers){
-            return res.send({message: 'User already exists'})
+         if (oldUsers) {
+            return res.send({ message: 'User already exists' })
          }
 
          const result = await usersCollection.insertOne(user)
@@ -121,7 +122,7 @@ const run = async () => {
       // load products by query email of seller
 
       app.get('/myproducts', async (req, res) => {
-         const userEmail = req.query.email 
+         const userEmail = req.query.email
          const query = { sellerEmail: userEmail }
          const result = await productsCollection.find(query).toArray()
          res.send(result)
@@ -179,14 +180,14 @@ const run = async () => {
 
          const decoded = req.decoded
          if (decoded.email !== req.query.email) {
-             return res.status(403).send({ message: "unothorized user" })
+            return res.status(403).send({ message: "unothorized user" })
          }
          let query = {}
 
          const userEmail = req.query.email
-         if(userEmail){
+         if (userEmail) {
 
-             query = { buyersEmail: userEmail }
+            query = { buyersEmail: userEmail }
          }
          const result = await bookingsCollection.find(query).toArray()
          res.send(result)
@@ -200,21 +201,21 @@ const run = async () => {
       })
 
       // load advertised products from db
-      app.get('/advertisedproduct',verifyJwt, async (req, res) => {
+      app.get('/advertisedproduct', verifyJwt, async (req, res) => {
          const query = { advertise: true }
          const result = await productsCollection.find(query).toArray();
          res.send(result)
       })
 
       // load all sellers from db
-      app.get('/allseller',verifyJwt, async (req, res) => {
+      app.get('/allseller', verifyJwt, async (req, res) => {
          const query = { role: "seller" }
          const result = await usersCollection.find(query).toArray()
          res.send(result)
       })
 
       // load all buyers from db
-      app.get('/allbuyer',verifyJwt, async (req, res) => {
+      app.get('/allbuyer', verifyJwt, async (req, res) => {
          const query = { role: "buyer" }
          const result = await usersCollection.find(query).toArray()
          res.send(result)
@@ -269,6 +270,37 @@ const run = async () => {
          const result = await productsCollection.deleteMany(query)
          res.send(result)
       })
+
+      // single booking for payment
+      app.get('/bookings/:id', async (req, res) => {
+         const query = { _id: ObjectId(req.params.id) }
+         const result = await bookingsCollection.findOne(query)
+
+         res.send(result)
+      })
+
+
+      // payment
+      app.post("/create-payment-intent", async (req, res) => {
+         const booking = req.body
+         const price = booking.price;
+        
+         const amount = price * 100
+
+         // Create a PaymentIntent with the order amount and currency
+         const paymentIntent = await stripe.paymentIntents.create({
+            amount: amount,
+            currency: "usd",
+            "payment_method_types": [
+               "card"
+            ],
+
+         });
+
+         res.send({
+            clientSecret: paymentIntent.client_secret,
+         });
+      });
 
 
    } finally {
