@@ -158,6 +158,77 @@ const run = async ()=>{
          res.send(result)
       })
 
+      // load advertised products from db
+      app.get('/advertisedproduct', async (req, res)=>{
+         const query = {advertise: true}
+         const result = await productsCollection.find(query).toArray();
+         res.send(result)
+      })
+
+      // load all sellers from db
+      app.get('/allseller', async (req, res)=>{
+         const query = {role: "seller"}
+         const result = await usersCollection.find(query).toArray()
+         res.send(result)
+      })
+
+      // load all buyers from db
+      app.get('/allbuyer', async (req, res)=>{
+         const query = {role: "buyer"}
+         const result = await usersCollection.find(query).toArray()
+         res.send(result)
+      })
+
+      // delete buyer by id from db
+      app.delete('/allbuyer/:id', async (req, res)=>{
+         const userId = req.params.id 
+         const query = {_id: ObjectId(userId)}
+         const result = await usersCollection.deleteOne(query)
+         res.send(result)
+      })
+
+      // delete buyer by id from db
+      app.delete('/allseller/:id', async (req, res)=>{
+         const userId = req.params.id 
+         const query = {_id: ObjectId(userId)}
+         const result = await usersCollection.deleteOne(query)
+         res.send(result)
+      })
+
+      // put request to verify seller account
+      app.put('/allseller/:id', async (req, res) => {
+         const userId = req.params.id
+       
+         const filter = {_id:ObjectId(userId)}
+         const options = { upsert: true }
+         const updatedDoc = {
+           $set: {
+             verified: true
+           }
+         }
+         const result = await usersCollection.updateOne(filter, updatedDoc, options)
+         res.send(result)
+      })
+
+      // load the users verfied info
+      app.get('/usersverification', async (req, res) => {
+         const userEmail = req.query.email
+         console.log(userEmail);
+         const query = {email: userEmail}
+         const result = await usersCollection.findOne(query)
+         console.log(result);
+         res.send(result)
+      })
+
+
+      // delete deleted sellers products
+      app.delete('/usersproducts', async (req, res) => {
+         const sellersEmail = req.params.email
+         const query = {sellerEmail: sellersEmail}
+         const result = await productsCollection.deleteMany(query)
+         res.send(result)
+      })
+
 
    }finally{
 
