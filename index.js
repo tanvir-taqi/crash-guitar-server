@@ -228,7 +228,7 @@ const run = async () => {
 
 
       // load advertised products from db
-      app.get('/advertisedproduct', verifyJwt, async (req, res) => {
+      app.get('/advertisedproduct', async (req, res) => {
          const query = { advertise: true }
          const result = await productsCollection.find(query).toArray();
          const remaining = result.filter(rem => rem.status !== 'Paid')
@@ -351,8 +351,8 @@ const run = async () => {
       app.get("/allproducts", async (req, res) => {
          const query = {}
          const result = await productsCollection.find(query).toArray()
-         const remaining = result.filter(rem => rem.status !== "Paid")
-         res.send(remaining)
+         // const remaining = result.filter(rem => rem.status !== "Paid")
+         res.send(result)
       })
 
       // load all products sold
