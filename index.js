@@ -18,8 +18,6 @@ app.get("/", (req, res) => {
    res.send("welcome to crash guitar server!")
 })
 
-// crashguitar
-// Nh59HOrNNs1Q5RYr
 
 
 const verifyJwt = (req, res, next) => {
@@ -168,6 +166,24 @@ const run = async () => {
          res.send(result)
       })
 
+      
+      // status update my orders
+      app.put('/myorders/:id', async (req, res) => {
+         const productId = req.params.id
+         const status = req.body.status
+        
+         const filter = { _id: ObjectId(productId) }
+         const options = { upsert: true }
+         const updatedDoc = {
+            $set: {
+               status: status,
+            }
+         }
+         const result = await bookingsCollection.updateOne(filter, updatedDoc, options)
+         console.log(result);
+         res.send(result)
+      })
+
       // report to admin put request 
       app.put('/reportproducts/:id', async (req,res) => {
          const productId = req.params.id
@@ -208,18 +224,15 @@ const run = async () => {
          res.send(result)
       })
 
-      // delete my orders
-      app.delete('/myorders/:id', async (req, res) => {
-         const query = { _id: ObjectId(req.params.id) }
-         const result = await bookingsCollection.deleteOne(query)
-         res.send(result)
-      })
+
+
 
       // load advertised products from db
       app.get('/advertisedproduct', verifyJwt, async (req, res) => {
          const query = { advertise: true }
          const result = await productsCollection.find(query).toArray();
-         res.send(result)
+         const remaining = result.filter(rem => rem.status !== 'Paid')
+         res.send(remaining)
       })
 
       // load all sellers from db
@@ -248,7 +261,7 @@ const run = async () => {
       app.delete('/allseller/:id', async (req, res) => {
          const userId = req.params.id
          const query = { _id: ObjectId(userId) }
-         const result = await usersCollection.deleteOne(query)
+         const result = await usersCollection.deleteOne(query) 
          res.send(result)
       })
 
@@ -280,7 +293,7 @@ const run = async () => {
 
       // delete deleted sellers products
       app.delete('/usersproducts', async (req, res) => {
-         const sellersEmail = req.params.email
+         const sellersEmail = req.query.email
          const query = { sellerEmail: sellersEmail }
          const result = await productsCollection.deleteMany(query)
          res.send(result)
@@ -341,6 +354,7 @@ const run = async () => {
          const remaining = result.filter(rem => rem.status !== "Paid")
          res.send(remaining)
       })
+
       // load all products sold
       app.get("/soldproducts", async (req, res) => {
          const query = {status:'Paid'}
