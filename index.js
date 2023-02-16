@@ -118,10 +118,10 @@ const run = async () => {
       })
 
       //load single products 
-        app.get('/product/:id', async (req, res) => {
+        app.get('/singleproduct/:id', async (req, res) => {
          const productId = req.params.id
          const query = { _id: ObjectId(productId)  }
-         const result = await productsCollection.find(query).toArray()
+         const result = await productsCollection.findOne(query)
          res.send(result)
       })
 
@@ -174,7 +174,13 @@ const run = async () => {
          res.send(result)
       })
 
-      
+      // delete from bookings collection 
+      app.delete('/myorders/:id', async (req, res) => {
+         const productId = req.params.id
+         const result = await bookingsCollection.deleteOne({_id: ObjectId(productId)})
+         console.log(result);
+         res.send(result)
+      })
       // status update my orders
       app.put('/myorders/:id', async (req, res) => {
          const productId = req.params.id
