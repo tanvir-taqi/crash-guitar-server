@@ -117,6 +117,14 @@ const run = async () => {
          res.send(result)
       })
 
+      //load single products 
+        app.get('/product/:id', async (req, res) => {
+         const productId = req.params.id
+         const query = { _id: ObjectId(productId)  }
+         const result = await productsCollection.find(query).toArray()
+         res.send(result)
+      })
+
       // load products by query email of seller
 
       app.get('/myproducts', async (req, res) => {
@@ -228,10 +236,10 @@ const run = async () => {
 
 
       // load advertised products from db
-      app.get('/advertisedproduct', async (req, res) => {
+      app.get('/advertisedproduct', verifyJwt, async (req, res) => {
          const query = { advertise: true }
          const result = await productsCollection.find(query).toArray();
-         const remaining = result.filter(rem => rem.status !== 'Paid')
+         const remaining = result.filter(rem => rem.status === 'Available')
          res.send(remaining)
       })
 
